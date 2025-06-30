@@ -23,6 +23,10 @@ class EICApp {
     this.userManager = new UserManager();
     this.enhancedUserManager = new EnhancedUserManager();
     this.roleManager = new RoleManager();
+    
+    // Setup real-time update callbacks
+    this.setupRealTimeCallbacks();
+    
     this.dashboardStats = {
       totalInspections: 0,
       pendingReports: 0,
@@ -34,6 +38,61 @@ class EICApp {
     window.eicApp = this;
     
     this.init();
+  }
+
+  // Setup real-time update callbacks for managers
+  setupRealTimeCallbacks() {
+    // Setup callback for role updates
+    this.roleManager.setUpdateCallback((roles) => {
+      // Update the roles table if we're on the role management view
+      if (this.currentView === 'role-management') {
+        const tableContent = document.getElementById('roles-table-content');
+        if (tableContent) {
+          tableContent.innerHTML = this.renderRolesTable();
+          this.attachRoleManagementEventListeners();
+        }
+      }
+      
+      // Update role dropdowns in user management if visible
+      this.updateRoleDropdowns();
+    });
+
+    // Setup callback for user updates
+    this.enhancedUserManager.setUpdateCallbacks(
+      (users) => {
+        // Update users display if we're on user management view
+        if (this.currentView === 'user-management') {
+          this.updateUsersDisplay();
+        }
+      },
+      (roles) => {
+        // Update role dropdowns when roles change
+        this.updateRoleDropdowns();
+      }
+    );
+  }
+
+  // Update role dropdowns in forms
+  updateRoleDropdowns() {
+    const roleSelects = document.querySelectorAll('select[name="role"], #user-role');
+    roleSelects.forEach(select => {
+      if (select) {
+        const currentValue = select.value;
+        const availableRoles = this.roleManager.getAvailableRoles();
+        
+        // Clear and repopulate options
+        select.innerHTML = '<option value="">Select Role</option>';
+        availableRoles.forEach(role => {
+          const option = document.createElement('option');
+          option.value = role.id;
+          option.textContent = role.name;
+          if (role.id === currentValue) {
+            option.selected = true;
+          }
+          select.appendChild(option);
+        });
+      }
+    });
   }
 
   async init() {
@@ -2541,7 +2600,8 @@ class EICApp {
 
   async refreshRolesTable() {
     try {
-      await this.roleManager.fetchRoles();
+      // Don't fetch roles again - use the real-time data from roleManager
+      // The roles are already updated via the onSnapshot listener
       
       // Update users assigned count for all roles
       for (const role of this.roleManager.roles) {

@@ -11,7 +11,8 @@ import {
   query,
   orderBy,
   serverTimestamp,
-  where
+  where,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
 export class RoleManager {
@@ -22,9 +23,40 @@ export class RoleManager {
     this.searchTerm = '';
     this.currentPage = 1;
     this.rolesPerPage = 10;
+    this.realTimeListeners = [];
+    this.onRolesUpdated = null;
     
     // Initialize default permissions structure
     this.initializePermissions();
+    
+    // Setup real-time listener for roles
+    this.setupRealTimeListener();
+  }
+
+  // Setup real-time listener for roles collection
+  setupRealTimeListener() {
+    try {
+      const rolesQuery = query(collection(db, "roles"), orderBy("createdAt", "desc"));
+      const rolesUnsubscribe = onSnapshot(rolesQuery, (snapshot) => {
+        this.roles = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
+        }));
+        
+        // Trigger UI update if callback is set
+        if (this.onRolesUpdated) {
+          this.onRolesUpdated(this.roles);
+        }
+      }, (error) => {
+        console.error('Real-time roles listener error:', error);
+      });
+
+      this.realTimeListeners.push(rolesUnsubscribe);
+    } catch (error) {
+      console.error('Error setting up real-time listener:', error);
+    }
   }
 
   // Initialize default permissions that can be assigned to roles
@@ -552,5 +584,20 @@ export class RoleManager {
       });
     });
     return count;
+  }
+
+  // Set callback for real-time updates
+  setUpdateCallback(onRolesUpdated) {
+    this.onRolesUpdated = onRolesUpdated;
+  }
+
+  // Cleanup method to remove listeners
+  cleanup() {
+    this.realTimeListeners.forEach(unsubscribe => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    });
+    this.realTimeListeners = [];
   }
 }

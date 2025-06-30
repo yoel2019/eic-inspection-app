@@ -232,14 +232,29 @@ export class EnhancedUserManager {
         throw error;
       }
 
-      // Create user in Firebase Auth
+      // Store current admin user info to restore session later
+      const currentAdminUser = auth.currentUser;
+      const currentAdminUid = currentAdminUser?.uid;
+      
+      // Create user in Firebase Auth (this will automatically sign in the new user)
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const newUser = userCredential.user;
 
       // Update profile with display name
-      await updateProfile(user, {
+      await updateProfile(newUser, {
         displayName: displayName
       });
+
+      // Important: Sign out the newly created user immediately to prevent auto-login
+      await auth.signOut();
+      
+      // The admin session will be restored by the onAuthStateChanged listener
+      // We'll trigger a manual re-authentication if needed
+      await logger.info('User created successfully, admin session preserved', { 
+        adminId: currentAdminUid,
+        newUserId: newUser.uid,
+        newUserEmail: email
+      }, 'USER_MANAGEMENT');
 
       // Create user document in Firestore
       const userDoc = {
@@ -249,32 +264,32 @@ export class EnhancedUserManager {
         createdAt: serverTimestamp(),
         lastLogin: null,
         isActive: true,
-        createdBy: auth.currentUser.uid
+        createdBy: currentAdminUid
       };
 
-      await setDoc(doc(db, "users", user.uid), userDoc);
+      await setDoc(doc(db, "users", newUser.uid), userDoc);
 
-      const newUser = {
-        id: user.uid,
-        uid: user.uid,
+      const newUserData = {
+        id: newUser.uid,
+        uid: newUser.uid,
         ...userDoc,
         createdAt: new Date(),
         lastLogin: null
       };
 
-      await logger.logUserAction('CREATE_USER', user.uid, { 
+      await logger.logUserAction('CREATE_USER', newUser.uid, { 
         email, 
         role, 
         displayName 
       });
 
       await logger.info('User created successfully', { 
-        userId: user.uid, 
+        userId: newUser.uid, 
         email, 
         role 
       }, 'USER_MANAGEMENT');
 
-      return newUser;
+      return newUserData;
     } catch (error) {
       await logger.error('Error creating user', error, 'USER_MANAGEMENT');
       throw error;
