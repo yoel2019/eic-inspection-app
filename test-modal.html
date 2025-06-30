@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal - EIC Inspection App</title>
+    
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link rel="stylesheet" href="src/css/role-management.css">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            background: #f3f4f6;
+            padding: 2rem;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-section">
+            <h1 class="text-2xl font-bold mb-4">Test de Modificaciones - EIC Inspection App</h1>
+            <p class="mb-4">Esta página permite probar las modificaciones realizadas sin depender de Firebase.</p>
+            
+            <h2 class="text-xl font-semibold mb-4">1. Test de Roles - Superadmin puede crear otros Superadmin</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Rol del usuario actual:</label>
+                <select id="current-user-role" class="border border-gray-300 rounded px-3 py-2">
+                    <option value="employee">Employee</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                    <option value="superadmin" selected>Super Admin</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Rol a asignar:</label>
+                <select id="target-role" class="border border-gray-300 rounded px-3 py-2">
+                    <option value="employee">Employee</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                    <option value="superadmin">Super Admin</option>
+                </select>
+            </div>
+            
+            <button id="test-role-assignment" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Test Role Assignment
+            </button>
+            
+            <div id="role-test-result" class="mt-4 p-3 rounded hidden"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">2. Test de Modal con Scroll</h2>
+            <button id="open-role-modal" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                Abrir Modal de Roles
+            </button>
+        </div>
+    </div>
+
+    <!-- Role Modal -->
+    <div id="role-modal" class="role-modal" style="display: none;">
+        <div class="role-modal-content slide-in">
+            <div class="role-modal-header">
+                <h2 id="role-modal-title">Create New Role</h2>
+                <button id="close-modal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="role-modal-body">
+                <form id="role-form">
+                    <div class="role-form-group">
+                        <label class="role-form-label" for="role-name">Role Name *</label>
+                        <input 
+                            type="text" 
+                            id="role-name" 
+                            class="role-form-input" 
+                            placeholder="Enter role name (e.g., Inspector, Analyst)" 
+                            required
+                        />
+                    </div>
+
+                    <div class="role-form-group">
+                        <label class="role-form-label" for="role-description">Description *</label>
+                        <textarea 
+                            id="role-description" 
+                            class="role-form-textarea" 
+                            placeholder="Describe the role responsibilities and scope"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="role-form-group">
+                        <div class="permissions-matrix">
+                            <div class="permissions-matrix-header">
+                                <h3>Permissions Matrix</h3>
+                                <p class="text-sm text-gray-500 mt-1">Select specific permissions for this role</p>
+                            </div>
+                            <div id="permissions-content">
+                                <!-- Dashboard Module -->
+                                <div class="permission-module">
+                                    <div class="permission-module-header">
+                                        <h4 class="permission-module-title">
+                                            <i class="fas fa-tachometer-alt permission-module-icon"></i>
+                                            Dashboard
+                                        </h4>
+                                    </div>
+                                    <div class="permission-module-content">
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">View Dashboard</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Manage Statistics</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Inspections Module -->
+                                <div class="permission-module">
+                                    <div class="permission-module-header">
+                                        <h4 class="permission-module-title">
+                                            <i class="fas fa-clipboard-check permission-module-icon"></i>
+                                            Inspections
+                                        </h4>
+                                    </div>
+                                    <div class="permission-module-content">
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">View Inspections</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Create Inspections</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Edit Inspections</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Delete Inspections</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Approve Inspections</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Perform Inspections</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Reports Module -->
+                                <div class="permission-module">
+                                    <div class="permission-module-header">
+                                        <h4 class="permission-module-title">
+                                            <i class="fas fa-file-alt permission-module-icon"></i>
+                                            Reports
+                                        </h4>
+                                    </div>
+                                    <div class="permission-module-content">
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">View Reports</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Create Reports</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Edit Reports</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Delete Reports</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Approve Reports</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Export Reports</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Analytics Module -->
+                                <div class="permission-module">
+                                    <div class="permission-module-header">
+                                        <h4 class="permission-module-title">
+                                            <i class="fas fa-chart-line permission-module-icon"></i>
+                                            Analytics
+                                        </h4>
+                                    </div>
+                                    <div class="permission-module-content">
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">View Analytics</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Export Analytics</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Advanced Analytics</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- User Management Module -->
+                                <div class="permission-module">
+                                    <div class="permission-module-header">
+                                        <h4 class="permission-module-title">
+                                            <i class="fas fa-users permission-module-icon"></i>
+                                            User Management
+                                        </h4>
+                                    </div>
+                                    <div class="permission-module-content">
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">View Users</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Create Users</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Edit Users</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Delete Users</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Assign Roles</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Role Management Module -->
+                                <div class="permission-module">
+                                    <div class="permission-module-header">
+                                        <h4 class="permission-module-title">
+                                            <i class="fas fa-user-shield permission-module-icon"></i>
+                                            Role Management
+                                        </h4>
+                                    </div>
+                                    <div class="permission-module-content">
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">View Roles</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Create Roles</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Edit Roles</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Delete Roles</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="permission-checkbox-group">
+                                            <label class="permission-checkbox-label">Manage Permissions</label>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" class="permission-checkbox" />
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="role-modal-footer">
+                <button type="button" id="cancel-role-btn" class="eic-btn eic-btn-outline">
+                    Cancel
+                </button>
+                <button type="submit" id="save-role-btn" class="eic-btn eic-btn-primary" form="role-form">
+                    <i class="fas fa-save"></i>
+                    <span>Save Role</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simular la clase UserManager para probar la funcionalidad
+        class UserManager {
+            canAssignRole(currentUserRole, targetRole) {
+                const roleHierarchy = {
+                    'employee': 1,
+                    'manager': 2,
+                    'admin': 3,
+                    'superadmin': 4
+                };
+
+                const currentLevel = roleHierarchy[currentUserRole] || 0;
+                const targetLevel = roleHierarchy[targetRole] || 0;
+
+                // Super admins can create other super admins
+                if (currentUserRole === 'superadmin') {
+                    return true;
+                }
+
+                return currentLevel >= targetLevel;
+            }
+        }
+
+        const userManager = new UserManager();
+
+        // Event listeners
+        document.getElementById('test-role-assignment').addEventListener('click', () => {
+            const currentRole = document.getElementById('current-user-role').value;
+            const targetRole = document.getElementById('target-role').value;
+            const canAssign = userManager.canAssignRole(currentRole, targetRole);
+            
+            const resultDiv = document.getElementById('role-test-result');
+            resultDiv.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800');
+            
+            if (canAssign) {
+                resultDiv.classList.add('bg-green-100', 'text-green-800');
+                resultDiv.innerHTML = `✅ SUCCESS: ${currentRole} CAN assign role ${targetRole}`;
+            } else {
+                resultDiv.classList.add('bg-red-100', 'text-red-800');
+                resultDiv.innerHTML = `❌ DENIED: ${currentRole} CANNOT assign role ${targetRole}`;
+            }
+        });
+
+        document.getElementById('open-role-modal').addEventListener('click', () => {
+            document.getElementById('role-modal').style.display = 'flex';
+        });
+
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('role-modal').style.display = 'none';
+        });
+
+        document.getElementById('cancel-role-btn').addEventListener('click', () => {
+            document.getElementById('role-modal').style.display = 'none';
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('role-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'role-modal') {
+                document.getElementById('role-modal').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

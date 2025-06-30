@@ -1,0 +1,15 @@
+{
+  "name": "eic-inspection-app",
+  "version": "1.0.0",
+  "description": "## Complete Food Safety Inspection System",
+  "main": "simple-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "sweetalert2": "^11.22.1"
+  }
+}

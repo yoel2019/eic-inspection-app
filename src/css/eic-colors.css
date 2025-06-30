@@ -1,0 +1,277 @@
+
+/* EIC Official Color Palette */
+:root {
+  /* EIC Primary Colors */
+  --eic-red-primary: #DC2626;
+  --eic-red-dark: #B91C1C;
+  --eic-red-light: #FEE2E2;
+  
+  /* Status Colors */
+  --success-green: #16A34A;
+  --warning-amber: #F59E0B;
+  --neutral-gray: #64748B;
+  
+  /* Background Colors */
+  --bg-white: #FFFFFF;
+  --bg-light-gray: #F8FAFC;
+  --bg-medium-gray: #F1F5F9;
+  
+  /* Text Colors */
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --text-light: #94A3B8;
+  
+  /* Border Colors */
+  --border-light: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --border-dark: #94A3B8;
+}
+
+/* EIC Button Styles with Icons */
+.eic-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.eic-btn-primary {
+  background-color: var(--eic-red-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.eic-btn-primary:hover {
+  background-color: var(--eic-red-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+.eic-btn-secondary {
+  background-color: var(--neutral-gray);
+  color: white;
+  box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2);
+}
+
+.eic-btn-secondary:hover {
+  background-color: #475569;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(100, 116, 139, 0.3);
+}
+
+.eic-btn-success {
+  background-color: var(--success-green);
+  color: white;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+}
+
+.eic-btn-success:hover {
+  background-color: #15803D;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+}
+
+.eic-btn-warning {
+  background-color: var(--warning-amber);
+  color: white;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+
+.eic-btn-warning:hover {
+  background-color: #D97706;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+.eic-btn-danger {
+  background-color: #EF4444;
+  color: white;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.eic-btn-danger:hover {
+  background-color: #DC2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.eic-btn-outline {
+  background-color: transparent;
+  color: var(--eic-red-primary);
+  border: 2px solid var(--eic-red-primary);
+}
+
+.eic-btn-outline:hover {
+  background-color: var(--eic-red-primary);
+  color: white;
+}
+
+/* Status Badges with EIC Colors */
+.eic-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.eic-status-compliant {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+.eic-status-non-compliant {
+  background-color: var(--eic-red-light);
+  color: var(--eic-red-dark);
+}
+
+.eic-status-pending {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+.eic-status-draft {
+  background-color: var(--bg-medium-gray);
+  color: var(--neutral-gray);
+}
+
+.eic-status-approved {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+/* Report Cards with Improved Legibility */
+.eic-report-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.eic-report-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.eic-report-header {
+  display: flex;
+  justify-content: between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.eic-report-title {
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.eic-report-meta {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.eic-report-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Icons */
+.eic-icon {
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+}
+
+.eic-icon-sm {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.eic-icon-lg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Floating Menu Styles */
+.eic-floating-menu {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-light);
+  min-width: 200px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.eic-floating-menu-header {
+  background: linear-gradient(135deg, var(--eic-red-primary), var(--eic-red-dark));
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+}
+
+.eic-floating-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  border-radius: 6px;
+  transition: background 0.2s;
+  margin: 0.25rem 0.5rem;
+}
+
+.eic-floating-menu-item:hover {
+  background: var(--bg-light-gray);
+  color: var(--eic-red-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .eic-floating-menu {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    border-radius: 0;
+    display: flex;
+    justify-content: space-around;
+    min-width: auto;
+  }
+  
+  .eic-floating-menu-header {
+    display: none;
+  }
+  
+  .eic-floating-menu-item {
+    flex-direction: column;
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+}

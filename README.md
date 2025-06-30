@@ -1,114 +1,165 @@
 # EIC Inspection App
 
-Sistema de inspección y control de calidad desarrollado para EIC (Empresa de Inspección y Control).
+## Complete Food Safety Inspection System
 
-## Descripción
+This is a complete web application for managing food safety inspections, exactly matching the design you provided.
 
-Esta aplicación web permite gestionar inspecciones, generar reportes y mantener un control de calidad eficiente para los procesos de la empresa.
+## Features
 
-## Características Principales
+### 🔐 Authentication
+- Email/Password login
+- Google OAuth integration
+- Role-based access (Admin/Employee)
 
-- 🔍 Sistema de inspecciones
-- 📊 Generación de reportes
-- 👥 Gestión de usuarios
-- 📱 Interfaz responsive
-- 🔒 Sistema de autenticación
-- 📈 Dashboard de métricas
+### 👨‍💼 Admin Dashboard
+- Perform new inspections
+- Review submitted reports
+- Administrator options
+- User management
+- Template management
 
-## Tecnologías Utilizadas
+### 📋 Inspection Checklist
+- Interactive checklist with OK/Problem/N/A options
+- Notes for problem items
+- Photo upload capability
+- Real-time form validation
 
-- Frontend: HTML5, CSS3, JavaScript
-- Backend: PHP/Node.js (según configuración)
-- Base de datos: MySQL/PostgreSQL
-- Servidor web: Apache/Nginx
+### 📊 Report Management
+- Detailed inspection reports
+- Status tracking (Pending/Approved/Problem)
+- Report approval workflow
+- Archive functionality
 
-## Instalación
+## Setup Instructions
 
-1. Clonar el repositorio:
+### 1. Firebase Configuration
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project or use existing one
+3. Enable Authentication:
+   - Go to Authentication > Sign-in method
+   - Enable Email/Password
+   - Enable Google (optional)
+4. Enable Firestore Database:
+   - Go to Firestore Database
+   - Create database in test mode
+5. Get your Firebase config:
+   - Go to Project Settings > General
+   - Scroll down to "Your apps"
+   - Copy the Firebase configuration
+
+### 2. Update Firebase Config
+Edit `src/js/firebase-config.js` and replace the placeholder config with your actual Firebase configuration:
+
+```javascript
+const firebaseConfig = {
+  apiKey: "your-actual-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
+};
+```
+
+### 3. Set Up Local Server
+You MUST run this on a local server (not by opening index.html directly).
+
+**Option 1: Python**
 ```bash
-git clone https://github.com/yoel2019/eic-inspection-app.git
-cd eic-inspection-app
+# Navigate to the EIC_Complete folder
+cd EIC_Complete
+
+# Python 3
+python -m http.server 8000
+
+# Python 2
+python -m SimpleHTTPServer 8000
 ```
 
-2. Instalar dependencias (si aplica):
+**Option 2: Node.js**
 ```bash
-npm install
-# o
-composer install
+# Install http-server globally
+npm install -g http-server
+
+# Navigate to EIC_Complete folder and run
+cd EIC_Complete
+http-server -p 8000
 ```
 
-3. Configurar variables de entorno:
-```bash
-cp .env.example .env
-# Editar .env con tus configuraciones
+**Option 3: VS Code Live Server**
+- Install "Live Server" extension
+- Right-click on index.html
+- Select "Open with Live Server"
+
+### 4. Access the Application
+Open your browser and go to:
+- `http://localhost:8000` (if using Python/Node.js)
+- Or the URL provided by Live Server
+
+### 5. Firebase Security Rules (Important!)
+Add these rules to your Firestore Database:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
+    }
+
+    // Reports can be created by authenticated users, read/write by admins
+    match /reports/{reportId} {
+      allow create: if request.auth != null;
+      allow read, write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
+    }
+  }
+}
 ```
 
-4. Ejecutar migraciones de base de datos (si aplica):
-```bash
-php artisan migrate
-# o el comando correspondiente
+### 6. Add Authorized Domains
+In Firebase Console:
+1. Go to Authentication > Settings
+2. Scroll to "Authorized domains"
+3. Add `localhost` (without http:// or port)
+
+## Default Admin Account
+The first user with email `yoellaya@gmail.com` or `admin@eic.com` will automatically be assigned admin role.
+
+## Troubleshooting
+
+### Common Issues:
+
+1. **Blank Screen**: Check browser console for errors
+2. **Firebase Auth Error**: Verify Firebase config and authorized domains
+3. **CORS Errors**: Make sure you're using a local server, not opening HTML directly
+4. **Module Import Errors**: Ensure you're using a modern browser that supports ES6 modules
+
+### Browser Console:
+Press F12 to open developer tools and check the Console tab for any error messages.
+
+## File Structure
+```
+EIC_Complete/
+├── index.html              # Main HTML file
+├── src/
+│   ├── css/
+│   │   └── styles.css      # Custom styles
+│   └── js/
+│       ├── app.js          # Main application logic
+│       ├── auth.js         # Authentication functions
+│       └── firebase-config.js # Firebase configuration
+├── assets/                 # Images and other assets
+└── README.md              # This file
 ```
 
-## Uso
+## Support
+If you encounter any issues, check:
+1. Browser console for JavaScript errors
+2. Firebase console for authentication/database errors
+3. Network tab in developer tools for failed requests
 
-### Desarrollo
-```bash
-npm run dev
-# o
-php -S localhost:8000
-```
-
-### Producción
-```bash
-npm run build
-npm start
-```
-
-## Estructura del Proyecto
-
-```
-eic-inspection-app/
-├── src/                 # Código fuente
-├── public/             # Archivos públicos
-├── config/             # Configuraciones
-├── docs/               # Documentación
-├── tests/              # Pruebas
-└── README.md
-```
-
-## Contribución
-
-1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
-
-## Branches
-
-- `main`: Rama principal de producción
-- `develop`: Rama de desarrollo
-- `feature/*`: Ramas para nuevas características
-- `hotfix/*`: Ramas para correcciones urgentes
-
-## Versionado
-
-Utilizamos [SemVer](http://semver.org/) para el versionado. Para las versiones disponibles, consulta los [tags en este repositorio](https://github.com/yoel2019/eic-inspection-app/tags).
-
-## Licencia
-
-Este proyecto es privado y pertenece a EIC (Empresa de Inspección y Control).
-
-## Contacto
-
-- Desarrollador: Yoel
-- Email: [correo@empresa.com]
-- Proyecto: [https://github.com/yoel2019/eic-inspection-app](https://github.com/yoel2019/eic-inspection-app)
-
-## Changelog
-
-### v1.0.0 (2025-06-30)
-- Importación inicial del proyecto de producción
-- Configuración de repositorio GitHub
-- Implementación de estructura de branches
-- Configuración de CI/CD básico
+The application is designed to match exactly the screenshots you provided, with full functionality for inspection management.

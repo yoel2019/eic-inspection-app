@@ -1,0 +1,755 @@
+
+/* Role Management Styles */
+
+/* Role Management Container */
+.role-management-container {
+  background: var(--bg-white);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .role-management-container {
+    padding: 1rem;
+  }
+}
+
+/* Role Management Controls */
+.role-controls {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.role-controls-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.role-search-container {
+  flex: 1;
+  min-width: 250px;
+  position: relative;
+}
+
+.role-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-white);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.role-search-input:focus {
+  outline: none;
+  border-color: var(--eic-red-primary);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.create-role-btn {
+  background-color: var(--eic-red-primary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.create-role-btn:hover {
+  background-color: var(--eic-red-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+/* Role Table */
+.role-table-container {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.role-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.role-table th {
+  background: var(--bg-light-gray);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+}
+
+.role-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.role-table tbody tr:hover {
+  background: var(--bg-light-gray);
+}
+
+.role-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Role Badges */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-badge.system {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+.role-badge.custom {
+  background-color: #D1FAE5;
+  color: #059669;
+}
+
+.role-badge.admin {
+  background-color: var(--eic-red-light);
+  color: var(--eic-red-dark);
+}
+
+.role-badge.superadmin {
+  background-color: #E9D5FF;
+  color: #7C2D12;
+}
+
+/* Permission Count */
+.permission-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--bg-light-gray);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Users Assigned Count */
+.users-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.75rem;
+}
+
+.action-btn.edit {
+  background: #F3F4F6;
+  color: #4B5563;
+}
+
+.action-btn.edit:hover {
+  background: #E5E7EB;
+  color: #374151;
+}
+
+.action-btn.delete {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.action-btn.delete:hover {
+  background: #FECACA;
+  color: #B91C1C;
+}
+
+.action-btn:disabled {
+  background-color: var(--bg-light-gray);
+  color: var(--text-light);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Modal Styles */
+.role-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.role-modal.hidden {
+  display: none;
+}
+
+.role-modal-content {
+  background: var(--bg-white);
+  border-radius: 16px;
+  padding: 0;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  transform: scale(0.9);
+  transition: transform 0.2s ease;
+}
+
+.role-modal:not(.hidden) .role-modal-content {
+  transform: scale(1);
+}
+
+.role-modal-header {
+  background: linear-gradient(135deg, var(--eic-red-primary), var(--eic-red-dark));
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.role-modal-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.role-modal-body {
+  padding: 2rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.role-modal-footer {
+  background: var(--bg-light-gray);
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-light);
+}
+
+/* Form Styles */
+.role-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.role-form-label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.role-form-input,
+.role-form-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-white);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.role-form-input:focus,
+.role-form-textarea:focus {
+  outline: none;
+  border-color: var(--eic-red-primary);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.role-form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Permissions Matrix */
+.permissions-matrix {
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.permissions-matrix-header {
+  background: var(--bg-light-gray);
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.permissions-matrix-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.permission-module {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.permission-module:last-child {
+  border-bottom: none;
+}
+
+.permission-module-header {
+  background: var(--bg-light-gray);
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.permission-module-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.permission-module-content {
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.5rem;
+}
+
+/* Modern Toggle Switch Styles for Permissions */
+.permission-checkbox-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 6px;
+  margin-bottom: 0.25rem;
+}
+
+.permission-checkbox-group:hover {
+  background-color: #F9FAFB;
+}
+
+.permission-checkbox-label {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Toggle Switch Container */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input[type="checkbox"] {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+/* Toggle Switch Slider */
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #D1D5DB;
+  transition: all 0.2s ease;
+  border-radius: 24px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Toggle Switch States */
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #3B82F6;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.toggle-switch input:hover:not(:disabled) + .toggle-slider {
+  background-color: #9CA3AF;
+}
+
+.toggle-switch input:checked:hover:not(:disabled) + .toggle-slider {
+  background-color: #2563EB;
+}
+
+/* Disabled State */
+.toggle-switch input:disabled + .toggle-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggle-switch input:disabled + .toggle-slider:before {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.permission-checkbox-group:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.permission-checkbox-group:has(input:disabled) .permission-checkbox-label {
+  cursor: not-allowed;
+}
+
+/* Legacy support for existing checkbox class */
+.modern-checkbox {
+  display: none;
+}
+
+/* Pagination */
+.role-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 0 0 12px 12px;
+  border-top: none;
+}
+
+.pagination-info {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pagination-btn {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-white);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--bg-light-gray);
+  border-color: var(--border-medium);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  background: var(--eic-red-primary);
+  color: white;
+  border-color: var(--eic-red-primary);
+}
+
+/* Loading States */
+.role-loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.role-loading i {
+  margin-right: 0.5rem;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--border-light);
+  border-top: 3px solid var(--eic-red-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.role-empty-state {
+  text-align: center;
+  padding: 3rem;
+}
+
+.role-empty-state i {
+  font-size: 4rem;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.role-empty-state h3 {
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-empty-state p {
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .role-table-container {
+    overflow-x: auto;
+  }
+  
+  .role-table {
+    min-width: 600px;
+  }
+  
+  .permission-module-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .role-controls-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .create-role-btn {
+    justify-content: center;
+  }
+  
+  .role-modal-content {
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Notification Styles */
+.role-notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3B82F6;
+  padding: 1rem;
+  z-index: 1001;
+  max-width: 400px;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.role-notification.success {
+  border-left-color: #10b981;
+}
+
+.role-notification.error {
+  border-left-color: #ef4444;
+}
+
+.role-notification.warning {
+  border-left-color: #f59e0b;
+}
+
+/* Permission Module Icons */
+.permission-module-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+}
+
+/* System Role Indicator */
+.system-role-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-left: 0.5rem;
+}
+
+/* Role Description */
+.role-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  max-width: 300px;
+}
+
+/* Button Variants */
+.eic-btn-outline {
+  background-color: transparent;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.eic-btn-outline:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}

@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIC Inspection App - Food Safety Management</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link rel="stylesheet" href="src/css/user-management.css">
+    <link rel="stylesheet" href="src/css/role-management.css">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'eic-red': {
+                            'primary': '#DC2626',
+                            'dark': '#B91C1C',
+                            'light': '#FEE2E2'
+                        },
+                        'success-green': '#16A34A',
+                        'warning-amber': '#F59E0B',
+                        'neutral-gray': '#64748B'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Meta Tags for PWA -->
+    <meta name="description" content="EIC Food Safety Inspection System - Professional inspection management with real-time compliance tracking">
+    <meta name="theme-color" content="#DC2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="EIC Inspection">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+</head>
+<body>
+    <!-- Main App Container -->
+    <div id="app" class="min-h-screen">
+        <!-- Loading Screen -->
+        <div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-red-600 to-red-800">
+            <div class="text-center text-white">
+                <div class="w-16 h-16 mx-auto mb-4 bg-white rounded-full flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-red-600 text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold mb-2">EIC Inspection</h1>
+                <p class="text-red-100">Loading...</p>
+                <div class="mt-4">
+                    <div class="loading-pulse w-8 h-1 bg-white rounded mx-auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Menu (will be dynamically created) -->
+    <div id="floating-menu-container"></div>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="src/js/firebase-config.js"></script>
+    <script type="module" src="src/js/auth.js"></script>
+    <script type="module" src="src/js/app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
