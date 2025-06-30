@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-6">User Management System Test</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">System Status</h2>
+            <div id="status-container">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                    <span>Initializing systems...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="test-results">
+                <!-- Test results will be displayed here -->
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Actions</h2>
+            <button id="run-tests" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">
+                <i class="fas fa-play mr-2"></i>Run Tests
+            </button>
+            <button id="view-logs" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                <i class="fas fa-file-alt mr-2"></i>View Logs
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { logger } from './src/js/logger.js';
+        import { validator } from './src/js/validator.js';
+        import { EnhancedUserManager } from './src/js/user-management-enhanced.js';
+
+        class UserManagementTester {
+            constructor() {
+                this.statusContainer = document.getElementById('status-container');
+                this.testResults = document.getElementById('test-results');
+                this.tests = [];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.updateStatus('Initializing Logger System...', 'loading');
+                    await logger.info('Test system initialized', null, 'TESTING');
+                    
+                    await this.updateStatus('Initializing Validator System...', 'loading');
+                    const validationTest = await validator.validateField('test@example.com', ['required', 'email']);
+                    
+                    await this.updateStatus('Systems initialized successfully!', 'success');
+                    
+                    this.setupEventListeners();
+                } catch (error) {
+                    await this.updateStatus('Initialization failed: ' + error.message, 'error');
+                    console.error('Initialization error:', error);
+                }
+            }
+
+            async updateStatus(message, type = 'info') {
+                const icons = {
+                    loading: 'fas fa-spinner fa-spin',
+                    success: 'fas fa-check-circle text-green-500',
+                    error: 'fas fa-exclamation-circle text-red-500',
+                    info: 'fas fa-info-circle text-blue-500'
+                };
+
+                this.statusContainer.innerHTML = `
+                    <div class="flex items-center mb-2">
+                        <i class="${icons[type]} mr-2"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+            }
+
+            setupEventListeners() {
+                document.getElementById('run-tests').addEventListener('click', () => {
+                    this.runTests();
+                });
+
+                document.getElementById('view-logs').addEventListener('click', () => {
+                    this.viewLogs();
+                });
+            }
+
+            async runTests() {
+                this.testResults.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin mr-2"></i>Running tests...</div>';
+                this.tests = [];
+
+                try {
+                    // Test Logger System
+                    await this.testLogger();
+                    
+                    // Test Validator System
+                    await this.testValidator();
+                    
+                    // Test Enhanced User Manager (without Firebase for now)
+                    await this.testUserManagerBasics();
+                    
+                    this.displayTestResults();
+                } catch (error) {
+                    this.testResults.innerHTML = `<div class="text-red-500">Test execution failed: ${error.message}</div>`;
+                }
+            }
+
+            async testLogger() {
+                try {
+                    await logger.debug('Debug test message', { test: true }, 'TESTING');
+                    await logger.info('Info test message', { test: true }, 'TESTING');
+                    await logger.warn('Warning test message', { test: true }, 'TESTING');
+                    await logger.error('Error test message', { test: true }, 'TESTING');
+                    
+                    const logs = logger.getLocalLogs();
+                    const testLogs = logs.filter(log => log.category === 'TESTING');
+                    
+                    this.addTestResult('Logger System', testLogs.length >= 4, `Generated ${testLogs.length} test logs`);
+                } catch (error) {
+                    this.addTestResult('Logger System', false, error.message);
+                }
+            }
+
+            async testValidator() {
+                try {
+                    // Test email validation
+                    const emailTest = await validator.validateField('test@example.com', ['required', 'email']);
+                    const invalidEmailTest = await validator.validateField('invalid-email', ['required', 'email']);
+                    
+                    // Test password validation
+                    const passwordTest = await validator.validateField('password123', ['required', 'password']);
+                    const weakPasswordTest = await validator.validateField('123', ['required', 'password']);
+                    
+                    // Test field validation
+                    const fieldsTest = await validator.validateFields({
+                        email: 'test@example.com',
+                        displayName: 'Test User',
+                        role: 'employee'
+                    }, {
+                        email: ['required', 'email'],
+                        displayName: ['required', { rule: 'minLength', params: [2] }],
+                        role: ['required']
+                    });
+                    
+                    const allPassed = emailTest.length === 0 && 
+                                    invalidEmailTest.length > 0 && 
+                                    passwordTest.length === 0 && 
+                                    weakPasswordTest.length > 0 && 
+                                    fieldsTest.isValid;
+                    
+                    this.addTestResult('Validator System', allPassed, 'All validation tests passed');
+                } catch (error) {
+                    this.addTestResult('Validator System', false, error.message);
+                }
+            }
+
+            async testUserManagerBasics() {
+                try {
+                    const userManager = new EnhancedUserManager();
+                    
+                    // Test basic functionality without Firebase
+                    userManager.setSearchTerm('test');
+                    userManager.setRoleFilter('employee');
+                    userManager.setCurrentPage(2);
+                    userManager.setSorting('createdAt', 'asc');
+                    
+                    const roleInfo = userManager.getRoleInfo('employee');
+                    const canAssign = userManager.canAssignRole('admin', 'employee');
+                    const canManage = userManager.canManageUser('admin', 'employee');
+                    
+                    const basicTests = userManager.searchTerm === 'test' &&
+                                     userManager.roleFilter === 'employee' &&
+                                     userManager.currentPage === 2 &&
+                                     roleInfo.label === 'Employee' &&
+                                     canAssign === true &&
+                                     canManage === true;
+                    
+                    this.addTestResult('Enhanced User Manager (Basic)', basicTests, 'Basic functionality tests passed');
+                } catch (error) {
+                    this.addTestResult('Enhanced User Manager (Basic)', false, error.message);
+                }
+            }
+
+            addTestResult(testName, passed, details) {
+                this.tests.push({
+                    name: testName,
+                    passed: passed,
+                    details: details
+                });
+            }
+
+            displayTestResults() {
+                const passedTests = this.tests.filter(test => test.passed).length;
+                const totalTests = this.tests.length;
+                
+                let html = `
+                    <div class="mb-4 p-4 rounded-lg ${passedTests === totalTests ? 'bg-green-100 border border-green-300' : 'bg-yellow-100 border border-yellow-300'}">
+                        <h3 class="font-semibold text-lg mb-2">
+                            Test Summary: ${passedTests}/${totalTests} tests passed
+                        </h3>
+                    </div>
+                `;
+                
+                this.tests.forEach(test => {
+                    html += `
+                        <div class="mb-3 p-3 rounded border ${test.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}">
+                            <div class="flex items-center mb-1">
+                                <i class="fas ${test.passed ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'} mr-2"></i>
+                                <span class="font-medium">${test.name}</span>
+                            </div>
+                            <div class="text-sm text-gray-600 ml-6">${test.details}</div>
+                        </div>
+                    `;
+                });
+                
+                this.testResults.innerHTML = html;
+            }
+
+            viewLogs() {
+                const logs = logger.getLocalLogs();
+                const logsHtml = logs.map(log => `
+                    <div class="mb-2 p-2 rounded border-l-4 ${this.getLogColorClass(log.level)}">
+                        <div class="flex justify-between items-start">
+                            <span class="font-medium">[${log.level}] ${log.category}</span>
+                            <span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="text-sm mt-1">${log.message}</div>
+                        ${log.data ? `<div class="text-xs text-gray-600 mt-1">${JSON.stringify(log.data)}</div>` : ''}
+                    </div>
+                `).join('');
+
+                Swal.fire({
+                    title: 'System Logs',
+                    html: `<div class="max-h-96 overflow-y-auto text-left">${logsHtml || 'No logs available'}</div>`,
+                    width: '800px',
+                    confirmButtonText: 'Close'
+                });
+            }
+
+            getLogColorClass(level) {
+                const colors = {
+                    DEBUG: 'border-gray-400',
+                    INFO: 'border-blue-400',
+                    WARN: 'border-yellow-400',
+                    ERROR: 'border-red-400'
+                };
+                return colors[level] || 'border-gray-400';
+            }
+        }
+
+        // Initialize the tester
+        new UserManagementTester();
+    </script>
+</body>
+</html>

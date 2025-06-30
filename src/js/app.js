@@ -4,7 +4,10 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/fi
 import { doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 import { signInWithGoogle, signInWithEmail, signOutUser } from './auth.js';
 import { UserManager } from './user-management.js';
+import { EnhancedUserManager } from './user-management-enhanced.js';
 import { RoleManager } from './role-management.js';
+import { logger } from './logger.js';
+import { validator } from './validator.js';
 
 class EICApp {
   constructor() {
@@ -18,6 +21,7 @@ class EICApp {
     this.sortBy = 'date';
     this.sortOrder = 'desc';
     this.userManager = new UserManager();
+    this.enhancedUserManager = new EnhancedUserManager();
     this.roleManager = new RoleManager();
     this.dashboardStats = {
       totalInspections: 0,
@@ -100,29 +104,9 @@ class EICApp {
       this.sortReports();
     } catch (error) {
       console.error('Error fetching reports:', error);
-      // Fallback to mock data if Firebase fails
-      console.log('Using fallback mock data...');
-      this.reports = [
-        {
-          id: '1',
-          templateName: 'Closing Inspection',
-          inspectorName: 'Megan S',
-          status: 'approved',
-          overallStatus: 'compliant',
-          createdAt: { toDate: () => new Date('2025-06-25T14:30:00') },
-          date: 'June 25, 2025, 2:30 PM'
-        },
-        {
-          id: '2',
-          templateName: 'Closing Inspection',
-          inspectorName: 'Joel',
-          status: 'pending',
-          overallStatus: 'non-compliant',
-          createdAt: { toDate: () => new Date('2025-06-25T13:15:00') },
-          date: 'June 25, 2025, 1:15 PM'
-        }
-      ];
-      this.sortReports();
+      logger.error('Failed to fetch reports from Firebase', { error: error.message });
+      this.reports = [];
+      this.showNotification('Error al cargar los reportes. Por favor, intenta de nuevo.', 'error');
     }
   }
 
@@ -1353,6 +1337,22 @@ class EICApp {
       return;
     }
 
+    // Initialize enhanced user manager if not already done
+    if (!this.enhancedUserManager.isInitialized) {
+      try {
+        await this.enhancedUserManager.init();
+        // Set up real-time update callbacks
+        this.enhancedUserManager.setUpdateCallbacks(
+          (users) => this.updateUsersTable(),
+          (roles) => this.updateRoleFilters()
+        );
+      } catch (error) {
+        await logger.error('Failed to initialize enhanced user manager', error, 'USER_MANAGEMENT');
+        this.showNotification('Error', 'Failed to initialize user management system', 'error');
+        return;
+      }
+    }
+
     const app = document.getElementById('app');
     app.innerHTML = `
       <div class="user-management-container">
@@ -1388,16 +1388,16 @@ class EICApp {
                   id="user-search" 
                   class="search-input" 
                   placeholder="Search by name or email..."
-                  value="${this.userManager.searchTerm}"
+                  value="${this.enhancedUserManager.searchTerm}"
                 />
               </div>
               <div class="filter-group">
                 <select id="role-filter" class="filter-select">
-                  <option value="all" ${this.userManager.roleFilter === 'all' ? 'selected' : ''}>All Roles</option>
-                  <option value="employee" ${this.userManager.roleFilter === 'employee' ? 'selected' : ''}>Employee</option>
-                  <option value="manager" ${this.userManager.roleFilter === 'manager' ? 'selected' : ''}>Manager</option>
-                  <option value="admin" ${this.userManager.roleFilter === 'admin' ? 'selected' : ''}>Administrator</option>
-                  <option value="superadmin" ${this.userManager.roleFilter === 'superadmin' ? 'selected' : ''}>Super Admin</option>
+                  <option value="all" ${this.enhancedUserManager.roleFilter === 'all' ? 'selected' : ''}>All Roles</option>
+                  <option value="employee" ${this.enhancedUserManager.roleFilter === 'employee' ? 'selected' : ''}>Employee</option>
+                  <option value="manager" ${this.enhancedUserManager.roleFilter === 'manager' ? 'selected' : ''}>Manager</option>
+                  <option value="admin" ${this.enhancedUserManager.roleFilter === 'admin' ? 'selected' : ''}>Administrator</option>
+                  <option value="superadmin" ${this.enhancedUserManager.roleFilter === 'superadmin' ? 'selected' : ''}>Super Admin</option>
                 </select>
                 <button id="add-user-btn" class="eic-btn eic-btn-primary">
                   <i class="fas fa-plus"></i>
@@ -1541,13 +1541,13 @@ class EICApp {
 
     // Search functionality
     document.getElementById('user-search').addEventListener('input', (e) => {
-      this.userManager.setSearchTerm(e.target.value);
+      this.enhancedUserManager.setSearchTerm(e.target.value);
       this.updateUsersDisplay();
     });
 
     // Role filter
     document.getElementById('role-filter').addEventListener('change', (e) => {
-      this.userManager.setRoleFilter(e.target.value);
+      this.enhancedUserManager.setRoleFilter(e.target.value);
       this.updateUsersDisplay();
     });
 
@@ -1580,17 +1580,17 @@ class EICApp {
 
     // Pagination events
     document.getElementById('prev-page').addEventListener('click', () => {
-      const filteredData = this.userManager.getFilteredUsers();
+      const filteredData = this.enhancedUserManager.getFilteredUsers();
       if (filteredData.hasPrevPage) {
-        this.userManager.setCurrentPage(filteredData.currentPage - 1);
+        this.enhancedUserManager.setCurrentPage(filteredData.currentPage - 1);
         this.updateUsersDisplay();
       }
     });
 
     document.getElementById('next-page').addEventListener('click', () => {
-      const filteredData = this.userManager.getFilteredUsers();
+      const filteredData = this.enhancedUserManager.getFilteredUsers();
       if (filteredData.hasNextPage) {
-        this.userManager.setCurrentPage(filteredData.currentPage + 1);
+        this.enhancedUserManager.setCurrentPage(filteredData.currentPage + 1);
         this.updateUsersDisplay();
       }
     });
@@ -1619,7 +1619,7 @@ class EICApp {
       tableContainer.classList.add('hidden');
       emptyState.classList.add('hidden');
 
-      await this.userManager.fetchUsers();
+      await this.enhancedUserManager.fetchUsers();
       this.updateUsersDisplay();
 
     } catch (error) {
@@ -1629,7 +1629,7 @@ class EICApp {
   }
 
   updateUsersDisplay() {
-    const filteredData = this.userManager.getFilteredUsers();
+    const filteredData = this.enhancedUserManager.getFilteredUsers();
     const loadingState = document.getElementById('loading-state');
     const tableContainer = document.getElementById('users-table-container');
     const emptyState = document.getElementById('empty-state');
@@ -1648,7 +1648,7 @@ class EICApp {
 
     // Populate users table
     tbody.innerHTML = filteredData.users.map(user => {
-      const roleInfo = this.userManager.getRoleInfo(user.role);
+      const roleInfo = this.enhancedUserManager.getRoleInfo(user.role);
       const initials = user.displayName ? user.displayName.split(' ').map(n => n[0]).join('').toUpperCase() : user.email[0].toUpperCase();
       
       return `
@@ -1680,7 +1680,7 @@ class EICApp {
           </td>
           <td>
             <div class="action-buttons">
-              ${this.userManager.canManageUser(this.currentUserRole, user.role) ? `
+              ${this.enhancedUserManager.canManageUser(this.currentUserRole, user.role) ? `
                 <button class="action-btn edit" onclick="window.eicApp.editUser('${user.id}')" title="Edit User">
                   <i class="fas fa-edit"></i>
                 </button>
@@ -1707,7 +1707,7 @@ class EICApp {
     const pageNumbers = document.getElementById('page-numbers');
 
     // Update info text
-    const start = ((filteredData.currentPage - 1) * this.userManager.usersPerPage) + 1;
+    const start = ((filteredData.currentPage - 1) * this.enhancedUserManager.usersPerPage) + 1;
     const end = Math.min(start + filteredData.users.length - 1, filteredData.totalUsers);
     paginationInfo.textContent = `Showing ${start}-${end} of ${filteredData.totalUsers} users`;
 
@@ -1723,7 +1723,7 @@ class EICApp {
         button.className = `pagination-btn ${i === filteredData.currentPage ? 'active' : ''}`;
         button.textContent = i;
         button.addEventListener('click', () => {
-          this.userManager.setCurrentPage(i);
+          this.enhancedUserManager.setCurrentPage(i);
           this.updateUsersDisplay();
         });
         pageNumbers.appendChild(button);
@@ -1754,7 +1754,7 @@ class EICApp {
       document.getElementById('user-email').disabled = true;
       document.getElementById('user-role').value = user.role || '';
       
-      this.userManager.currentEditingUser = user;
+      this.enhancedUserManager.currentEditingUser = user;
     } else {
       // Create mode
       modalTitle.textContent = 'Add New User';
@@ -1763,7 +1763,7 @@ class EICApp {
       
       form.reset();
       document.getElementById('user-email').disabled = false;
-      this.userManager.currentEditingUser = null;
+      this.enhancedUserManager.currentEditingUser = null;
     }
 
     // Clear previous errors
@@ -1774,7 +1774,7 @@ class EICApp {
 
   closeUserModal() {
     document.getElementById('user-modal').classList.add('hidden');
-    this.userManager.currentEditingUser = null;
+    this.enhancedUserManager.currentEditingUser = null;
   }
 
   async saveUser() {
@@ -1803,13 +1803,13 @@ class EICApp {
       saveBtn.disabled = true;
       document.getElementById('save-text').textContent = 'Saving...';
 
-      if (this.userManager.currentEditingUser) {
+      if (this.enhancedUserManager.currentEditingUser) {
         // Update existing user
-        await this.userManager.updateUser(this.userManager.currentEditingUser.id, userData);
+        await this.enhancedUserManager.updateUser(this.enhancedUserManager.currentEditingUser.id, userData);
         this.showNotification('Success', 'User updated successfully', 'success');
       } else {
         // Create new user
-        await this.userManager.createUser(userData);
+        await this.enhancedUserManager.createUser(userData);
         this.showNotification('Success', 'User created successfully', 'success');
       }
 
@@ -1844,10 +1844,10 @@ class EICApp {
     }
 
     // Validate password (only for new users)
-    if (!this.userManager.currentEditingUser && !userData.password) {
+    if (!this.enhancedUserManager.currentEditingUser && !userData.password) {
       this.showFieldError('password-error', 'Password is required');
       isValid = false;
-    } else if (!this.userManager.currentEditingUser && userData.password.length < 6) {
+    } else if (!this.enhancedUserManager.currentEditingUser && userData.password.length < 6) {
       this.showFieldError('password-error', 'Password must be at least 6 characters long');
       isValid = false;
     }
@@ -1856,7 +1856,7 @@ class EICApp {
     if (!userData.role) {
       this.showFieldError('role-error', 'Please select a role');
       isValid = false;
-    } else if (!this.userManager.canAssignRole(this.currentUserRole, userData.role)) {
+    } else if (!this.enhancedUserManager.canAssignRole(this.currentUserRole, userData.role)) {
       this.showFieldError('role-error', 'You cannot assign this role');
       isValid = false;
     }
@@ -1878,14 +1878,14 @@ class EICApp {
   }
 
   editUser(userId) {
-    const user = this.userManager.getUserById(userId);
+    const user = this.enhancedUserManager.getUserById(userId);
     if (user) {
       this.openUserModal(user);
     }
   }
 
   deleteUser(userId) {
-    const user = this.userManager.getUserById(userId);
+    const user = this.enhancedUserManager.getUserById(userId);
     if (!user) return;
 
     // Prevent self-deletion
@@ -1895,7 +1895,7 @@ class EICApp {
     }
 
     // Check permissions
-    if (!this.userManager.canManageUser(this.currentUserRole, user.role)) {
+    if (!this.enhancedUserManager.canManageUser(this.currentUserRole, user.role)) {
       this.showNotification('Error', 'You do not have permission to delete this user', 'error');
       return;
     }
@@ -1912,6 +1912,37 @@ class EICApp {
     this.userToDelete = null;
   }
 
+  // Callback methods for real-time updates
+  updateUsersTable() {
+    if (this.currentView === 'user_management') {
+      this.updateUsersDisplay();
+    }
+  }
+
+  updateRoleFilters() {
+    if (this.currentView === 'user_management') {
+      // Update role filter dropdown with dynamic roles
+      const roleFilter = document.getElementById('role-filter');
+      if (roleFilter && this.enhancedUserManager.roles) {
+        const currentValue = roleFilter.value;
+        const availableRoles = this.enhancedUserManager.getAvailableRoles();
+        
+        // Rebuild options
+        roleFilter.innerHTML = `
+          <option value="all">All Roles</option>
+          ${availableRoles.map(role => 
+            `<option value="${role.id}">${role.name}</option>`
+          ).join('')}
+        `;
+        
+        // Restore selected value if still valid
+        if ([...roleFilter.options].some(option => option.value === currentValue)) {
+          roleFilter.value = currentValue;
+        }
+      }
+    }
+  }
+
   async confirmDeleteUser() {
     if (!this.userToDelete) return;
 
@@ -1922,7 +1953,7 @@ class EICApp {
       confirmBtn.disabled = true;
       confirmBtn.innerHTML = '<div class="loading-spinner"></div> Deleting...';
 
-      await this.userManager.deleteUser(this.userToDelete);
+      await this.enhancedUserManager.deleteUser(this.userToDelete, true);
       
       this.showNotification('Success', 'User deleted successfully', 'success');
       this.closeConfirmationDialog();
