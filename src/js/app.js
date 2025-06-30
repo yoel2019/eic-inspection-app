@@ -104,29 +104,9 @@ class EICApp {
       this.sortReports();
     } catch (error) {
       console.error('Error fetching reports:', error);
-      // Fallback to mock data if Firebase fails
-      console.log('Using fallback mock data...');
-      this.reports = [
-        {
-          id: '1',
-          templateName: 'Closing Inspection',
-          inspectorName: 'Megan S',
-          status: 'approved',
-          overallStatus: 'compliant',
-          createdAt: { toDate: () => new Date('2025-06-25T14:30:00') },
-          date: 'June 25, 2025, 2:30 PM'
-        },
-        {
-          id: '2',
-          templateName: 'Closing Inspection',
-          inspectorName: 'Joel',
-          status: 'pending',
-          overallStatus: 'non-compliant',
-          createdAt: { toDate: () => new Date('2025-06-25T13:15:00') },
-          date: 'June 25, 2025, 1:15 PM'
-        }
-      ];
-      this.sortReports();
+      logger.error('Failed to fetch reports from Firebase', { error: error.message });
+      this.reports = [];
+      this.showNotification('Error al cargar los reportes. Por favor, intenta de nuevo.', 'error');
     }
   }
 
