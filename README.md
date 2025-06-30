@@ -127,7 +127,7 @@ In Firebase Console:
 3. Add `localhost` (without http:// or port)
 
 ## Default Admin Account
-The first user with email `yoellaya@gmail.com` or `admin@eic.com` will automatically be assigned admin role.
+The first user with email `admin@eic.com` will automatically be assigned admin role.
 
 ## Troubleshooting
 
